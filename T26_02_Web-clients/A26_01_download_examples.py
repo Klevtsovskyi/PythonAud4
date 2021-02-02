@@ -80,6 +80,15 @@ class PyFilesViewParser(HTMLParser):
                 self.pyfiles.append(href)
 
 
+def get_html(url):
+    """ Повертає розкодавані дані веб-сторінки за заданою адресою."""
+    return str(urlopen(url).read(), encoding="utf-8", errors="ignore")
+
+
+def get_filename(example):
+    """ Повертає у заданій віносній URL-адресі ім'я python-файлу"""
+    return re.search(FILENAME, example).group("NAME")
+
 def download_examples(n, dirname=""):
     """ З сайту http://matfiz.univ.kiev.ua завантажує
     усі python-файли за номером теми n в папку dirname,
@@ -110,33 +119,6 @@ def download_examples(n, dirname=""):
         filename = get_filename(example) # Визначаємо ім'я файлу
         # Завантажуємо файл і зберігаємо їх у папці dirname
         urlretrieve(example_url, os.path.join(dirname, filename))
-
-
-def get_html(url):
-    """ Повертає розкодавані дані веб-сторінки за заданою адресою."""
-    return str(urlopen(url).read(), encoding="utf-8", errors="ignore")
-
-
-def find_topic_url(html, n):
-    """ Шукає і повертає посилання на тему з номером n
-    у заданому рядку.
-
-    :param html: рядок html-типу
-    :param n: номер шуканої теми
-    """
-    return re.search(A_TAG_TOPIC.format(n), html).group("URL")
-
-
-def find_examples_urls(html):
-    """ Повертає список усіх відносних посилань у заданому
-    рядку на файли з розширенням .py або .pyw
-    """
-    return re.findall(PYFILE, html)
-
-
-def get_filename(example):
-    """ Повертає у заданій віносній URL-адресі ім'я python-файлу"""
-    return re.search(FILENAME, example).group("NAME")
 
 
 if __name__ == '__main__':
