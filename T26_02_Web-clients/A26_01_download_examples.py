@@ -89,6 +89,7 @@ def get_filename(example):
     """ Повертає у заданій віносній URL-адресі ім'я python-файлу"""
     return re.search(FILENAME, example).group("NAME")
 
+
 def download_examples(n, dirname=""):
     """ З сайту http://matfiz.univ.kiev.ua завантажує
     усі python-файли за номером теми n в папку dirname,
