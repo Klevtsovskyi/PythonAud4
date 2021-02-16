@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<!-- Знаходиться у головній директорії / -->
+<!-- Відкриваємо цей файли через веб-браузер за адресою localhost:8000 -->
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Palindrome</title>
+</head>
+<body>
+  <h1>Чи є заданий рядок паліндромом?</h1>
+  <!-- html-форма для відправки даних на сервер -->
+  <!-- Після відправки форми запускається файл cgi-bin/palindrome.py і йому передаються дані з форми -->
+  <form method="POST" action="/cgi-bin/palindrome.py">
+    <p>
+      <input type="text" name="string" value="" placeholder="Введіть рядок">
+      <input type="submit" value="Перевірити">
+    </p>
+  </form>
+</body>
+</html>
