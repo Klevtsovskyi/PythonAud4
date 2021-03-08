@@ -1,0 +1,10 @@
+[
+    {
+        "currency": "UAH",
+        "amount": 123.0
+    },
+    {
+        "currency": "USD",
+        "amount": 5.03
+    }
+]

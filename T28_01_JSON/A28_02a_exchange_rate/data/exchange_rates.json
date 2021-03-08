@@ -1,0 +1,17 @@
+[
+    {
+        "currency1": "UAH",
+        "currency2": "USD",
+        "rate": 24.47
+    },
+    {
+        "currency1": "UAH",
+        "currency2": "EUR",
+        "rate": 26.6
+    },
+    {
+        "currency1": "USD",
+        "currency2": "EUR",
+        "rate": 1.09
+    }
+]
