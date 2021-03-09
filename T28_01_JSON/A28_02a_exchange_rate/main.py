@@ -88,7 +88,7 @@ class ExchangeRateJSON:
                 currencies += Template(OPTION).substitute(cur=cur)
             params["currencies"] = currencies
 
-        # http://127.0.0.1:8000/exchange_rate
+        # http://127.0.0.1:8000/exchange_rate.json
         elif path == "exchange_rate.json":
             form = cgi.FieldStorage(fp=environ["wsgi.input"], environ=environ)
             cur1 = form.getfirst("from", "")
