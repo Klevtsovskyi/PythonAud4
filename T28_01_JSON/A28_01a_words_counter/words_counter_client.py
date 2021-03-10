@@ -60,7 +60,9 @@ def words_counter(string: str) -> Counter:
     """ Рахує кількість слів з деякого рядка та повертає результат
     у форматі Counter (словник: слово - кількість входжень).
     """
-    return Counter(re.findall(WORD, string, re.I))
+    words = re.findall(WORD, string, re.I)
+    words = [word.lower() for word in words]
+    return Counter(words)
 
 
 def words_counter_to_json(counter: Counter, filename: str):
