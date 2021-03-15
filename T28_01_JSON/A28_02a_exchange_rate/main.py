@@ -17,6 +17,10 @@ import cgi
 import json
 from string import Template
 
+OPTION = """
+      <option value="$cur">$cur</option>
+"""
+
 
 class ExchangeRateJSON:
 
