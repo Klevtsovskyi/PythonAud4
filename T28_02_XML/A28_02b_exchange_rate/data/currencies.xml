@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<data>
+
+    <currencies count="3">
+        <currency id="UAH">Гривня</currency>
+        <currency id="USD">Американський долар</currency>
+        <currency id="EUR">Євро</currency>
+    </currencies>
+
+    <exchange_rates>
+        <rate currency1="UAH" currency2="USD">
+             24.47
+        </rate>
+        <rate currency1="UAH" currency2="EUR">
+             26.6
+        </rate>
+        <rate currency1="USD" currency2="EUR">
+            1.09
+        </rate>
+    </exchange_rates>
+
+</data>
