@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Курс валют</title>
+</head>
+<body>
+  <h1>Курс валют</h1>
+  <form method="POST" action="/exchange_rate">
+    <select name="from">
+      $currencies
+    </select>
+    <select name="to">
+      $currencies
+    </select>
+    <input type="text" name="amount" value="">
+    <input type="submit" value="Обчислити">
+  </form>
+
+  <br>
+  <a href="/add_currency" title="Додати валюту">Додати валюту</a>
+  <br>
+  <a href="/update_currency" title="Змінити валюту">Змінити валюту</a>
+  <br>
+  <a href="/delete_currency" title="Видалити валюту">Видалити валюту</a>
+</body>
+</html>
