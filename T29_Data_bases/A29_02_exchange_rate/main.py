@@ -160,7 +160,7 @@ class ExchangeRateDB:
             """
             # Виконається лише один з двох наступних запитів
             curs.execute(query, (upd_rate, upd_cur_id, reg_cur_id))
-            curs.execute(query, (upd_rate, reg_cur_id, upd_cur_id))
+            curs.execute(query, (1 / upd_rate, reg_cur_id, upd_cur_id))
             currencies_id.remove((reg_cur_id, ))
             for cur_id in currencies_id:
                 reg_rate = self.obtain_rate(reg_cur_id, cur_id[0], upd_rate)
