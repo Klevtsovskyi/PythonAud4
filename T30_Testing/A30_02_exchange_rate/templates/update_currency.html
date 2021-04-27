@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Оновлення валюти</title>
+</head>
+<body>
+  <h1>Оновлення валюти</h1>
+  <form method="POST" action="/update_currency">
+    <select name="cur_id">
+      $currencies
+    </select>
+    <input type="text" name="cur_name" placeholder="Нова назва валюти">
+    <select name="reg_cur_id">
+      $currencies
+    </select>
+    <input type="text" pattern="\d*\.?\d*" name="rate" placeholder="Новий курс">
+    <input type="submit" value="Оновити">
+  </form>
+  <br>
+  <a href="/" title="Повернутися на головну">Повернутися на головну</a>
+  <p>$result</p>
+</body>
+</html>
