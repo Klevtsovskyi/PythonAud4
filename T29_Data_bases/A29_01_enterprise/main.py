@@ -65,13 +65,6 @@ def to_database(db_filename, sheets):
         );
         """
     )
-    curs.execute(
-        """
-        CREATE INDEX "PRIMARY_departments" ON "departments" (
-        "id" ASC
-        );
-        """
-    )
 
     for row in sheets["departments"][1:]:
         # додати рядок row в таблицю departments
