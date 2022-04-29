@@ -24,7 +24,7 @@ import os
 
 def from_excel(xlsx_filename) -> dict:
     """ Зчитує дані з Excel-файлу та повертає словник з
-    ключами - ім'я аркуша та значеннями - список рядків
+    ключами - ім`я аркуша та значеннями - список рядків
     (список клітинок) аркуша.
 
     :param xlsx_filename: назва Excel-файлу
@@ -51,7 +51,7 @@ def to_database(db_filename, sheets):
     if os.path.exists(db_filename):
         os.remove(db_filename)
 
-    # Створюємо зв'язок з базою даних
+    # Створюємо зв`язок з базою даних
     conn = sqlite3.connect(db_filename)
     curs = conn.cursor()
 
@@ -59,9 +59,16 @@ def to_database(db_filename, sheets):
     curs.execute(
         """
         CREATE TABLE departments (
-            department_id INTEGER NOT NULL,
+            id INTEGER NOT NULL,
             title TEXT UNIQUE,
-            PRIMARY KEY (department_id AUTOINCREMENT)
+            PRIMARY KEY (id AUTOINCREMENT)
+        );
+        """
+    )
+    curs.execute(
+        """
+        CREATE INDEX "PRIMARY_departments" ON "departments" (
+        "id" ASC
         );
         """
     )
@@ -94,27 +101,25 @@ def to_database(db_filename, sheets):
         );
         """
     )
-
-    for row in sheets["staff"][1:]:
-        # додати рядок row в таблицю staff
-        curs.execute(
-            """
-            INSERT INTO staff (
-                personnel_number,
-                last_name,
-                first_name,
-                second_name,
-                passport,
-                salary,
-                department_id
-            )
-            VALUES (?, ?, ?, ?, ?, ?, ?);
-            """,
-            row
+    # додати рядки в таблицю staff
+    curs.executemany(
+        """
+        INSERT INTO staff (
+            personnel_number,
+            last_name,
+            first_name,
+            second_name,
+            passport,
+            salary,
+            department_id
         )
+        VALUES (?, ?, ?, ?, ?, ?, ?);
+        """,
+        sheets["staff"][1:]
+    )
 
     conn.commit()  # Фіксуємо транзакцію
-    conn.close()   # Закриваємо зв'язок з БД
+    conn.close()  # Закриваємо зв`язок з БД
 
 
 def print_data(db_filename):
@@ -150,13 +155,58 @@ def print_data(db_filename):
     conn.close()
 
 
+def delete_department(db_filename, department_title):
+    """
+    Видаляє підрозділ з БД разом з усіма робітниками,
+    що працювали у цьому пірозділі.
+
+    :param db_filename: назва БД
+    :param department_title: назва підрозділу
+    :return:
+    """
+    conn = sqlite3.connect(db_filename)
+    curs = conn.cursor()
+
+    # Знаходимо id підрозділу
+    curs.execute(
+        """
+        SELECT id FROM "departments"
+        WHERE title=?;
+        """,
+        (department_title, )
+    )
+    dep_id = curs.fetchone()
+
+    if dep_id:
+        # Видаляємо підрозділ з таблиці підрозділів
+        curs.execute(
+            """
+            DELETE FROM "departments"
+            WHERE id=?;
+            """,
+            dep_id
+        )
+        # Видаляємо робітників, що працюють у підрозділі
+        curs.execute(
+            """
+            DELETE FROM "staff"
+            WHERE department_id=?;
+            """,
+            dep_id
+        )
+
+    conn.commit()
+    conn.close()
+
+
 if __name__ == "__main__":
     xlsx = "enterprise.xlsx"
     db = "enterprise.db"
-    sheets = from_excel(xlsx)
-    to_database(db, sheets)
+    worksheets = from_excel(xlsx)
+    to_database(db, worksheets)
     print_data(db)
-
+    # delete_department(db, "Бухгалтерія")
+    # print_data(db)
 
 # Отримати табельні номери всіх працівників,
 # в яких заробітня платня в межах від 20000.00 до 30000.00

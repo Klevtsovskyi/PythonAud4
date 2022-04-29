@@ -69,7 +69,7 @@ class ExchangeRateDB:
         return result
 
     def get_currency_name(self, currency_id):
-        """ Повертає ім'я валюти згідно її id"""
+        """ Повертає ім`я валюти згідно її id"""
         conn = sqlite3.connect(self.database)
         curs = conn.cursor()
         curs.execute(
@@ -84,19 +84,13 @@ class ExchangeRateDB:
         """ Перевіряє чи існує валюта з заданим кодом або назвою"""
         conn = sqlite3.connect(self.database)
         curs = conn.cursor()
-        result = False
+        result = True
         curs.execute(
-            """SELECT * FROM "currencies" WHERE "id"=?""",
-            (currency_id, )
+            """SELECT * FROM "currencies" WHERE "id"=? OR "name"=?""",
+            (currency_id, currency_name)
         )
-        if curs.fetchone() is not None:
-            result = True
-        curs.execute(
-            """SELECT * FROM "currencies" WHERE "name"=?""",
-            (currency_name, )
-        )
-        if curs.fetchone() is not None:
-            result = True
+        if curs.fetchone() is None:
+            result = False
         conn.close()
         return result
 
@@ -131,7 +125,7 @@ class ExchangeRateDB:
         conn.close()
 
     def update_currency_name(self, cur_id, new_cur_name):
-        """ Надає нове ім'я new_cur_name валюті з кодом cur_id"""
+        """ Надає нове ім`я new_cur_name валюті з кодом cur_id"""
         conn = sqlite3.connect(self.database)
         curs = conn.cursor()
         curs.execute(
@@ -149,7 +143,7 @@ class ExchangeRateDB:
         curs = conn.cursor()
         curs.execute(
             """SELECT "id" FROM "currencies" WHERE "id"<>?;""",
-            (upd_cur_id,)
+            (upd_cur_id, )
         )
         currencies_id = curs.fetchall()  # Всі валюти окрім поточної
         # Якщо окрім поточної валюти в БД є ще валюти, оновлюємо курс
@@ -197,12 +191,12 @@ class ExchangeRateDB:
         file = "templates/currencies.html"
         form = cgi.FieldStorage(fp=environ["wsgi.input"], environ=environ)
 
-        # http://127.0.0.1:8000/
+        # http://localhost:8000/
         if path == "":
-            for id, name in self.get_currencies():
-                params["currencies"] += Template(OPTION).substitute(cur_id=id, cur_name=name)
+            for ID, name in self.get_currencies():
+                params["currencies"] += Template(OPTION).substitute(cur_id=ID, cur_name=name)
 
-        # http://127.0.0.1:8000/exchange_rate
+        # http://localhost:8000/exchange_rate
         elif path == "exchange_rate":
             cur1_id = form.getfirst("from", "")
             cur2_id = form.getfirst("to", "")
@@ -213,14 +207,14 @@ class ExchangeRateDB:
                 rate = round(self.obtain_rate(cur1_id, cur2_id, float(amount)), 2)
                 cur1_name = self.get_currency_name(cur1_id)
                 cur2_name = self.get_currency_name(cur2_id)
-                params["result"] = "{} {} = {} {}".format(amount, cur1_name, rate, cur2_name)
+                params["result"] = f"{amount} {cur1_name} = {rate} {cur2_name}"
             # Якщо у формі задано недостатньо параметрів,
             # перенаправляємо на головну сторінку
             else:
                 status = "303 SEE OTHER"
                 headers.append(("Location", "/"))
 
-        # http://127.0.0.1:8000/add_currency
+        # http://localhost:8000/add_currency
         elif path == "add_currency":
             cur_id = form.getfirst("cur_id", "")
             cur_name = form.getfirst("cur_name", "")
@@ -229,20 +223,20 @@ class ExchangeRateDB:
             # Якщо запит до стрінки надійшов з форми для додавання
             if cur_id and cur_name and rate:
                 if self.currency_exists(cur_id, cur_name):
-                    params["result"] = "Валюта з кодом \"{}\" або назвою \"{}\" вже існує!".format(cur_id, cur_name)
+                    params["result"] = f"Валюта з кодом \"{cur_id}\" або назвою \"{cur_name}\" вже існує!"
                 elif float(rate) <= 0:
                     params["result"] = "Неправильне знаачення курсу!"
                 else:
                     self.add_currency(cur_id, cur_name, reg_cur_id, float(rate))
-                    params["result"] = "Валюта \"{}\" успішно додана!".format(cur_name)
+                    params["result"] = f"Валюта \"{cur_name}\" успішно додана!"
             elif cur_id or cur_name or reg_cur_id or rate:
                 params["result"] = "Введено недостатньо параметрів!"
 
-            for id, name in self.get_currencies():
-                params["currencies"] += Template(OPTION).substitute(cur_id=id, cur_name=name)
+            for ID, name in self.get_currencies():
+                params["currencies"] += Template(OPTION).substitute(cur_id=ID, cur_name=name)
                 file = "templates/add_currency.html"
 
-        # http://127.0.0.1:8000/update_currency
+        # http://localhost:8000/update_currency
         elif path == "update_currency":
             cur_id = form.getfirst("cur_id", "")
             cur_name = form.getfirst("cur_name", "")
@@ -253,13 +247,12 @@ class ExchangeRateDB:
                 # зміна імені валюти "cur_id"
                 if cur_name:
                     if self.currency_exists("", cur_name):
-                        params["result"] += "Валюта з назвою \"{}\" вже існує! ".format(cur_name)
+                        params["result"] += f"Валюта з назвою \"{cur_name}\" вже існує! "
                     else:
                         old_cur_name = self.get_currency_name(cur_id)
                         self.update_currency_name(cur_id, cur_name)
                         params["result"] += (
-                            "Назву валюту \"{}\" успішно змінено на \"{}\"! "
-                            .format(old_cur_name, cur_name)
+                            f"Назву валюту \"{old_cur_name}\" успішно змінено на \"{cur_name}\"! "
                         )
                 # зміна курсу валюти "cur_id" відносно "reg_cur_id"
                 if rate:
@@ -268,28 +261,28 @@ class ExchangeRateDB:
                     else:
                         self.update_currency_rate(cur_id, reg_cur_id, float(rate))
                         cur_name = self.get_currency_name(cur_id)
-                        params["result"] += "Курс валюти \"{}\" успішно змінено!".format(cur_name)
+                        params["result"] += f"Курс валюти \"{cur_name}\" успішно змінено!"
                 if not (cur_name or rate):
                     params["result"] = "Введено недостатньо параметрів!"
 
-            for id, name in self.get_currencies():
-                params["currencies"] += Template(OPTION).substitute(cur_id=id, cur_name=name)
+            for ID, name in self.get_currencies():
+                params["currencies"] += Template(OPTION).substitute(cur_id=ID, cur_name=name)
                 file = "templates/update_currency.html"
 
-        # http://127.0.0.1:8000/delete_currency
+        # http://localhost:8000/delete_currency
         elif path == "delete_currency":
             cur_id = form.getfirst("currency_id", "")
             # Якщо запит до стрінки надійшов з форми для видалення
             if cur_id:
                 cur_name = self.get_currency_name(cur_id)
                 self.delete_currency(cur_id)
-                params["result"] = "Валюта \"{}\" успішно видалена!".format(cur_name)
+                params["result"] = f"Валюта \"{cur_name}\" успішно видалена!"
 
-            for id, name in self.get_currencies():
-                params["currencies"] += Template(OPTION).substitute(cur_id=id, cur_name=name)
+            for ID, name in self.get_currencies():
+                params["currencies"] += Template(OPTION).substitute(cur_id=ID, cur_name=name)
                 file = "templates/delete_currency.html"
 
-        # http://127.0.0.1:8000/<будь-який інший запит>
+        # http://localhost:8000/<будь-який інший запит>
         else:
             status = "404 NOT FOUND"
             file = "templates/error_404.html"
@@ -302,7 +295,7 @@ class ExchangeRateDB:
 
 def from_excel(xlsx_filename) -> dict:
     """ Зчитує дані з Excel-файлу та повертає словник з
-    ключами - ім'я аркуша та значеннями - список рядків
+    ключами - ім`я аркуша та значеннями - список рядків
     (список клітинок) аркуша.
 
     :param xlsx_filename: назва Excel-файлу
@@ -330,19 +323,14 @@ def restore_db(xlsx_filename, db_filename):
 
     conn = sqlite3.connect(db_filename)
     curs = conn.cursor()
-    # Створюємо таблицю валют
-    curs.execute(
+    # Створюємо таблицю валют та таблицю курсів
+    curs.executescript(
         """
         CREATE TABLE "currencies" (
             "id" TEXT NOT NULL,
             "name" TEXT UNIQUE NOT NULL,
             PRIMARY KEY ("id")
         );
-        """
-    )
-    # Створюємо таблицю курсів
-    curs.execute(
-        """
         CREATE TABLE "exchange_rates" (
             "cur1_id" TEXT NOT NULL,
             "cur2_id" TEXT NOT NULL,
@@ -357,16 +345,14 @@ def restore_db(xlsx_filename, db_filename):
     )
     # Записуємо дані з робочої книги Excel до БД
     sheets = from_excel(xlsx_filename)
-    for row in sheets["currencies"][1:]:
-        curs.execute(
-            """INSERT INTO "currencies" VALUES (?, ?)""",
-            row
-        )
-    for row in sheets["rate"][1:]:
-        curs.execute(
-            """INSERT INTO "exchange_rates" VALUES (?, ?, ?)""",
-            row
-        )
+    curs.executemany(
+        """INSERT INTO "currencies" VALUES (?, ?)""",
+        sheets["currencies"][1:]
+    )
+    curs.executemany(
+        """INSERT INTO "exchange_rates" VALUES (?, ?, ?)""",
+        sheets["rate"][1:]
+    )
     conn.commit()
     conn.close()
 
@@ -379,5 +365,5 @@ if __name__ == "__main__":
     db = "data/currencies.db"
     restore_db(xlsx, db)
     app = ExchangeRateDB(db)
-    print(" === Local webserver === ")
+    print(f"Локальний сервер запущено на http://localhost:{PORT}")
     make_server(HOST, PORT, app).serve_forever()
