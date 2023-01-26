@@ -95,9 +95,8 @@ def get_station_code(station):
     :return: код станції
     """
     # Будуємо URL-запит
-    url = "https://uk.wikipedia.org/wiki/"
-    path = ("Список_залізничних_станцій_і_роз'їздів_України_({})"
-            .format(station[0]))
+    url = "https://uk.wikipedia.org"
+    path = f"/wiki/Список_залізничних_станцій_і_роз'їздів_України_({station[0]})"
     # Кодуємо кирилицю в URL-запиті та визначаємо остаточний URL-запит
     full_url = url + quote(path, encoding="utf-8")
     try:
@@ -105,7 +104,7 @@ def get_station_code(station):
         request = urlopen(full_url)
         # Розкодовуємо веб-сторінку
         html = str(request.read(), encoding="utf-8", errors="ignore")
-        # Створюємо об'єкт для структурного аналізу html
+        # Створюємо об`єкт для структурного аналізу html
         svp = StationViewParser(station)
         svp.feed(html)           # Передаємо дані
         code = svp.station_code  # Отримаємо результат
@@ -116,10 +115,13 @@ def get_station_code(station):
         print(e)
 
 
-if __name__ == '__main__':
-    stations = ["Київ-Пасажирський",
-                "Львів",
-                "Київ"]
+if __name__ == "__main__":
+    stations = [
+        "Київ-Пасажирський",
+        "Львів",
+        "Київ",
+        "Орлівщина"
+    ]
     for station in stations:
         code = get_station_code(station)
         if code:
