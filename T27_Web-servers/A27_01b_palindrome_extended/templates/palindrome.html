@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Паліндром</title>
+
+  <script type="text/javascript">
+  function getResult() {
+    let str = document.getElementById("string").value;
+    let xmlhttp = new XMLHttpRequest();
+    xmlhttp.onreadystatechange = function() {
+      if (this.readyState == 4 && this.status == 200) {
+        document.getElementById("result").innerHTML = this.responseText;
+        document.getElementById("string").value = "";
+      }
+    };
+    xmlhttp.open("GET", "/palindrome?string=" + str, true);
+    xmlhttp.send();
+  }
+  </script>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Чи є заданий рядок паліндромом?</h1>
+  <form>
+    <div>
+      <input type="text" name="string" id="string" value="" placeholder="Введіть рядок">
+      <input type="button" value="Перевірити" onclick="getResult();">
+    </div>
+  </form>
+  <h2 id="result"></h2>
+</body>
+</html>
